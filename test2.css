@@ -1,0 +1,149 @@
+  :root{
+    --bg:#0b1020; --panel:#131a2e; --panel-2:#1b2440; --panel-3:#0f1526;
+    --border:#26304f; --text:#e7ecf5; --muted:#8b97b5; --accent:#4ea1ff;
+    --good:#2ecc71; --warn:#f1c40f; --bad:#e74c3c; --unknown:#8b97b5;
+    --obs:#4ea1ff; --forecast:#f1c40f; --calc:#6ee7a7;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+       background:var(--bg);color:var(--text);font-size:14px;line-height:1.45;}
+  header{padding:14px 24px;border-bottom:1px solid var(--border);
+         display:flex;justify-content:space-between;align-items:center;
+         background:linear-gradient(90deg,#0b1020 0%,#131a2e 100%);
+         position:sticky;top:0;z-index:1000;}
+  header h1{font-size:16px;margin:0;font-weight:600;}
+  header .tag{font-size:12px;color:var(--muted);}
+
+  .layout{display:grid;grid-template-columns:340px 1fr;gap:16px;
+          padding:16px;max-width:1600px;margin:0 auto;}
+  .panel{background:var(--panel);border:1px solid var(--border);
+         border-radius:12px;padding:16px;margin-bottom:16px;}
+  .panel h2{font-size:13px;text-transform:uppercase;letter-spacing:.08em;
+            color:var(--muted);margin:0 0 12px 0;font-weight:600;
+            display:flex;justify-content:space-between;align-items:baseline;}
+  .panel h2 .sub{font-size:11px;color:var(--muted);text-transform:none;letter-spacing:0;font-weight:400;}
+
+  label{display:block;font-size:12px;color:var(--muted);margin:10px 0 4px;}
+  input,select{width:100%;padding:8px 10px;background:var(--panel-2);
+               border:1px solid var(--border);border-radius:8px;
+               color:var(--text);font-size:13px;}
+  input:focus,select:focus{outline:none;border-color:var(--accent);}
+  button{width:100%;margin-top:14px;padding:10px 14px;background:var(--accent);
+         color:#04101f;font-weight:600;border:none;border-radius:8px;
+         cursor:pointer;font-size:13px;}
+  button:hover{filter:brightness(1.1);}
+  button.secondary{background:transparent;color:var(--accent);
+                   border:1px solid var(--accent);margin-top:8px;}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+
+  /* Карта */
+  #map{height:360px;border-radius:10px;overflow:hidden;}
+
+  /* Метаданные */
+  .meta-block{background:var(--panel-3);border:1px solid var(--border);
+              border-radius:8px;padding:10px;font-size:12px;
+              color:var(--muted);margin-top:10px;}
+  .meta-block b{color:var(--text);font-weight:600;}
+
+  /* Сводка запроса */
+  .kv{display:grid;grid-template-columns:200px 1fr;gap:6px 16px;font-size:13px;}
+  .kv .k{color:var(--muted);}
+  .kv .v{color:var(--text);font-weight:500;}
+
+  /* Таймлайн */
+  .chart-wrap{height:220px;margin-top:8px;position:relative;}
+  .legend{display:flex;gap:16px;font-size:12px;color:var(--muted);margin-top:8px;flex-wrap:wrap;}
+  .legend span::before{content:"■";margin-right:6px;vertical-align:middle;}
+  .legend .sw::before{color:#f1c40f;}
+  .legend .mm::before{color:#e74c3c;}
+  .legend .win::before{color:#4ea1ff;}
+  .legend .thr::before{color:#8b97b5;}
+
+  /* Карточки механизмов */
+  .mech-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;}
+  .mech{background:var(--panel-3);border:1px solid var(--border);
+        border-radius:10px;padding:12px;}
+  .mech h3{margin:0 0 8px 0;font-size:13px;display:flex;justify-content:space-between;
+           align-items:center;gap:8px;}
+  .mech .ind{font-size:12px;color:var(--muted);text-transform:none;font-weight:400;}
+  .mech .row2{display:flex;justify-content:space-between;font-size:12px;
+              margin:4px 0;color:var(--muted);}
+  .mech .row2 b{color:var(--text);font-weight:600;}
+  .mech .status{margin-top:8px;font-size:12px;padding:6px 8px;border-radius:6px;}
+  .mech .status.ok{background:#12351f;color:var(--good);}
+  .mech .status.warn{background:#3a300d;color:var(--warn);}
+  .mech .status.bad{background:#3a1414;color:var(--bad);}
+  .mech .status.unknown{background:#232a3d;color:var(--unknown);}
+
+  /* Таблицы */
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);
+        vertical-align:top;}
+  th{color:var(--muted);font-weight:500;font-size:11px;
+     text-transform:uppercase;letter-spacing:.05em;}
+  tr.selected{background:#1a2946;}
+  tr.dim{color:var(--muted);}
+  td.num{font-variant-numeric:tabular-nums;}
+
+  /* Бейджи */
+  .badge{display:inline-block;padding:2px 8px;border-radius:999px;
+         font-size:10px;font-weight:700;text-transform:uppercase;
+         letter-spacing:.05em;}
+  .badge.obs{background:#122e4d;color:#7fbcff;}
+  .badge.forecast{background:#4a3a10;color:#f1c40f;}
+  .badge.calc{background:#1f3a2c;color:#6ee7a7;}
+  .badge.unknown{background:#232a3d;color:#8b97b5;}
+
+  .pill{display:inline-block;padding:2px 8px;border-radius:6px;
+        font-size:11px;font-weight:600;}
+  .pill.good{background:#12351f;color:var(--good);}
+  .pill.warn{background:#3a300d;color:var(--warn);}
+  .pill.bad{background:#3a1414;color:var(--bad);}
+  .pill.unknown{background:#232a3d;color:var(--unknown);}
+
+  /* Предупреждения (паспорт) */
+  .warning{background:var(--panel-3);border:1px solid var(--border);
+           border-left:3px solid var(--accent);border-radius:8px;
+           padding:12px 14px;margin-bottom:10px;font-size:13px;}
+  .warning.risk{border-left-color:var(--bad);}
+  .warning.warn{border-left-color:var(--warn);}
+  .warning.ok{border-left-color:var(--good);}
+  .warning.unknown{border-left-color:var(--unknown);}
+  .warning .head{display:flex;justify-content:space-between;
+                 align-items:flex-start;gap:12px;margin-bottom:8px;}
+  .warning .head h4{margin:0;font-size:14px;font-weight:600;}
+  .warning .fields{display:grid;grid-template-columns:180px 1fr;
+                   gap:4px 14px;font-size:12px;}
+  .warning .fields .k{color:var(--muted);}
+  .warning .fields .v{color:var(--text);}
+  .warning .actions{margin-top:8px;font-size:11px;color:var(--muted);}
+
+  /* Рекомендация */
+  .rec-box{background:var(--panel-3);border:1px solid var(--border);
+           border-radius:10px;padding:14px;margin-top:12px;}
+  .rec-box h3{margin:0 0 8px 0;font-size:14px;}
+  .rec-box .reason{font-size:13px;color:var(--muted);margin-top:6px;}
+  .rec-box .reason b{color:var(--text);}
+
+  .rules{margin-top:12px;font-size:12px;color:var(--muted);}
+  .rules ul{margin:6px 0 0 0;padding-left:18px;}
+  .rules li{margin:3px 0;}
+
+  /* Сбои / предупреждения о данных */
+  .data-alert{background:#3a1414;color:#ffd6d6;border-left:3px solid var(--bad);
+              padding:8px 12px;border-radius:6px;font-size:12px;margin-bottom:10px;}
+  .data-warn{background:#3a300d;color:#fff2c4;border-left:3px solid var(--warn);
+             padding:8px 12px;border-radius:6px;font-size:12px;margin-bottom:10px;}
+
+  .loading{color:var(--muted);font-size:12px;margin-top:8px;}
+  .error{color:var(--bad);font-size:12px;margin-top:8px;}
+
+  .toolbar{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;}
+  .toolbar button{width:auto;margin-top:0;padding:8px 12px;}
+
+  @media (max-width:1100px){
+    .layout{grid-template-columns:1fr;}
+    .mech-grid{grid-template-columns:1fr;}
+    .kv{grid-template-columns:140px 1fr;}
+    .warning .fields{grid-template-columns:130px 1fr;}
+  }

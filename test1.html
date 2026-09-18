@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ru">
+<link rel="stylesheet" href="test2.css">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>КосмоХакатон 2026 — Прогнозирование рисков ВКД</title>
+
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <!-- satellite.js -->
+    <script src="https://cdn.jsdelivr.net/npm/satellite.js@5.0.0/dist/satellite.min.js"></script>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+    
+    <header>
+    <h1>🛰️ Прогнозирование внешних рисков и планирование ВКД на МКС</h1>
+    <div class="tag">КосмоХакатон 2026 · исследовательский прототип</div>
+    </header>
+
+    <div class="layout">
+
+    <!-- ЛЕВАЯ ПАНЕЛЬ: ФОРМА -->
+    <aside class="panel">
+        <h2>Параметры запроса</h2>
+
+        <label>Режим</label>
+        <select id="mode">
+        <option value="current">Текущая обстановка</option>
+        <option value="historical">Историческая дата</option>
+        </select>
+
+        <label>Начало ВКД (UTC)</label>
+        <input type="datetime-local" id="start" />
+
+        <label>Длительность ВКД (часы)</label>
+        <input type="number" id="duration" min="1" max="8" step="1" value="4" />
+
+        <label>Период поиска начала (часы)</label>
+        <input type="number" id="searchWindow" min="1" max="24" step="1" value="24" />
+
+        <button id="runBtn">Рассчитать</button>
+        <button id="reloadBtn" class="secondary">Принудительно обновить источники</button>
+
+        <div id="status" class="loading">Готов к запуску.</div>
+    </aside>
+
+    <!-- ПРАВАЯ ЧАСТЬ: РЕЗУЛЬТАТЫ -->
+    <main>
+        <div class="panel">
+        <h2>Траектория МКС</h2>
+        <div id="map"></div>
+        <div class="meta" id="tleMeta" style="font-size:12px;color:var(--muted);margin-top:8px;">
+            TLE ещё не загружены.
+        </div>
+        </div>
+
+        <div class="panel" style="margin-top:16px;">
+        <h2>Временная картина воздействий</h2>
+        <div class="chart-wrap"><canvas id="timeline"></canvas></div>
+        <div class="cards">
+            <div class="card">
+            <h3>Космическая погода (Kp)</h3>
+            <div class="value" id="kpValue">—</div>
+            <div class="meta" id="kpMeta">нет данных</div>
+            </div>
+            <div class="card">
+            <h3>MMOD / сближения</h3>
+            <div class="value" id="mmodValue">—</div>
+            <div class="meta" id="mmodMeta">нет данных</div>
+            </div>
+        </div>
+        </div>
+
+        <div class="panel" style="margin-top:16px;">
+        <h2>Сравнение окон ВКД</h2>
+        <table id="windowsTable">
+            <thead>
+            <tr>
+                <th>Начало (UTC)</th>
+                <th>Конец (UTC)</th>
+                <th>Риск (мин)</th>
+                <th>Полнота данных</th>
+                <th>Оценка</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr><td colspan="5" style="color:var(--muted);">Запустите расчёт.</td></tr>
+            </tbody>
+        </table>
+        </div>
+
+        <div class="panel" style="margin-top:16px;">
+        <h2>Предупреждения</h2>
+        <div class="warnings" id="warnings">
+            <div style="color:var(--muted);font-size:13px;">Здесь появятся предупреждения с объяснениями.</div>
+        </div>
+        </div>
+    </main>
+    </div>
+           
+    <script src="test3.js"></script>
+</body>
+</html>
