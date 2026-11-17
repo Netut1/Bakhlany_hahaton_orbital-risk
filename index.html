@@ -1,108 +1,143 @@
 <!DOCTYPE html>
 <html lang="ru">
-<link rel="stylesheet" href="test2.css">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>КосмоХакатон 2026 — Прогнозирование рисков ВКД</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ВКД на МКС — прогноз рисков</title>
 
-    <!-- Leaflet -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    <!-- satellite.js -->
-    <script src="https://cdn.jsdelivr.net/npm/satellite.js@5.0.0/dist/satellite.min.js"></script>
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Leaflet (карта) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <!-- Chart.js и satellite.js подключаем до script.js -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/satellite.js@5.0.0/dist/satellite.min.js"></script>
+
+  <link rel="stylesheet" href="style.css" />
+
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #131a2e;
+      --panel-2: #1a2138;
+      --border: #26304f;
+      --text: #e7ecf5;
+      --muted: #8b97b5;
+      --accent: #4ea1ff;
+      --good: #6ee7a7;
+      --warn: #f1c40f;
+      --bad:  #ff6b6b;
+      --unknown: #a0a8c0;
+    }
+  </style>
 </head>
 <body>
-    
-    <header>
-    <h1>🛰️ Прогнозирование внешних рисков и планирование ВКД на МКС</h1>
+  <header>
+    <h1>Прогнозирование внешних рисков и планирование ВКД на МКС</h1>
     <div class="tag">КосмоХакатон 2026 · исследовательский прототип</div>
-    </header>
+  </header>
 
-    <div class="layout">
-
-    <!-- ЛЕВАЯ ПАНЕЛЬ: ФОРМА -->
+  <div class="layout">
+    <!-- ЛЕВАЯ ПАНЕЛЬ -->
     <aside class="panel">
-        <h2>Параметры запроса</h2>
+      <h2>Параметры запроса</h2>
 
-        <label>Режим</label>
-        <select id="mode">
+      <label>Режим</label>
+      <select id="mode">
         <option value="current">Текущая обстановка</option>
-        <option value="historical">Историческая дата</option>
+        <option value="historical">Историческая дата (1 мая — 30 июня 2024)</option>
+      </select>
+
+      <div id="histBox" style="display:none">
+        <label>Вид исторического запуска</label>
+        <select id="histKind">
+          <option value="review">Разбор обстановки (по архивам)</option>
+          <option value="replay">Прогноз из прошлого (replay)</option>
         </select>
 
-        <label>Начало ВКД (UTC)</label>
-        <input type="datetime-local" id="start" />
+        <div id="cutoffBox" style="display:none">
+          <label>Момент отсечения (UTC): учитываются только сведения, опубликованные до него</label>
+          <input type="datetime-local" id="cutoff" min="2024-05-01T00:00" max="2024-06-30T23:59" />
+        </div>
 
-        <label>Длительность ВКД (часы)</label>
-        <input type="number" id="duration" min="1" max="8" step="1" value="4" />
+        <label>Архив орбит МКС (GP_HISTORY, JSON)</label>
+        <input type="file" id="orbitFile" accept=".json,application/json" />
+        <div id="orbitMeta" style="font-size:12px;color:var(--muted);margin-top:6px;">Архив не загружен.</div>
+      </div>
 
-        <label>Период поиска начала (часы)</label>
-        <input type="number" id="searchWindow" min="1" max="24" step="1" value="24" />
+      <label>Начало ВКД (UTC)</label>
+      <input type="datetime-local" id="start" />
 
-        <button id="runBtn">Рассчитать</button>
-        <button id="reloadBtn" class="secondary">Принудительно обновить источники</button>
+      <label>Длительность ВКД (часы)</label>
+      <input type="number" id="duration" min="1" max="8" step="1" value="4" />
 
-        <div id="status" class="loading">Готов к запуску.</div>
+      <label>Период поиска начала (часы)</label>
+      <input type="number" id="searchWindow" min="1" max="24" step="1" value="24" />
+
+      <label>Порог сближения с объектом (км)</label>
+      <input type="number" id="conjThreshold" min="1" max="25" step="1" value="5" />
+
+      <button id="runBtn">Рассчитать</button>
+      <button id="reloadBtn" class="secondary">Принудительно обновить источники</button>
+
+      <div id="status" class="loading">Готов к запуску.</div>
     </aside>
 
-    <!-- ПРАВАЯ ЧАСТЬ: РЕЗУЛЬТАТЫ -->
+    <!-- ПРАВАЯ ЧАСТЬ -->
     <main>
-        <div class="panel">
+      <div class="panel">
         <h2>Траектория МКС</h2>
         <div id="map"></div>
         <div class="meta" id="tleMeta" style="font-size:12px;color:var(--muted);margin-top:8px;">
-            TLE ещё не загружены.
+          TLE ещё не загружены.
         </div>
-        </div>
+      </div>
 
-        <div class="panel" style="margin-top:16px;">
+      <div class="panel" style="margin-top:16px;">
         <h2>Временная картина воздействий</h2>
         <div class="chart-wrap"><canvas id="timeline"></canvas></div>
         <div class="cards">
-            <div class="card">
+          <div class="card">
             <h3>Космическая погода (Kp)</h3>
             <div class="value" id="kpValue">—</div>
             <div class="meta" id="kpMeta">нет данных</div>
-            </div>
-            <div class="card">
+          </div>
+          <div class="card">
             <h3>MMOD / сближения</h3>
             <div class="value" id="mmodValue">—</div>
             <div class="meta" id="mmodMeta">нет данных</div>
-            </div>
+          </div>
         </div>
-        </div>
+      </div>
 
-        <div class="panel" style="margin-top:16px;">
+      <div class="panel" style="margin-top:16px;">
         <h2>Сравнение окон ВКД</h2>
         <table id="windowsTable">
-            <thead>
+          <thead>
             <tr>
-                <th>Начало (UTC)</th>
-                <th>Конец (UTC)</th>
-                <th>Риск (мин)</th>
-                <th>Полнота данных</th>
-                <th>Оценка</th>
+              <th>Начало (UTC)</th>
+              <th>Конец (UTC)</th>
+              <th>Риск (мин)</th>
+              <th>Полнота данных</th>
+              <th>Оценка</th>
             </tr>
-            </thead>
-            <tbody>
+          </thead>
+          <tbody>
             <tr><td colspan="5" style="color:var(--muted);">Запустите расчёт.</td></tr>
-            </tbody>
+          </tbody>
         </table>
-        </div>
+      </div>
 
-        <div class="panel" style="margin-top:16px;">
+      <div class="panel" style="margin-top:16px;">
         <h2>Предупреждения</h2>
         <div class="warnings" id="warnings">
-            <div style="color:var(--muted);font-size:13px;">Здесь появятся предупреждения с объяснениями.</div>
+          <div style="color:var(--muted);font-size:13px;">Здесь появятся предупреждения с объяснениями.</div>
         </div>
-        </div>
+      </div>
     </main>
-    </div>
-           
-    <script src="test3.js"></script>
+  </div>
+  <script src="https://unpkg.com/leaflet-providers@latest/leaflet-providers.js"></script>
+  <!-- Локальный архив орбит МКС (создаётся из iss_gp_history.json, см. инструкцию); если файла нет — просто пропускается -->
+  <script src="data/iss_gp_history.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
